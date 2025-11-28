@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/auth/forgot-password/reset';
 import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
 import ServersPage from './pages/servers';
+import NotFoundPage from './pages/not-found';
 
 interface AuthContext {
   isAuthenticated: boolean;
@@ -33,6 +34,7 @@ const beforeLoadAuthenticated = ({ context }: { context: RouterContext }) => {
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
+  notFoundComponent: NotFoundPage,
 });
 
 const loginRoute = createRoute({
@@ -103,6 +105,12 @@ const serversRoute = createRoute({
   component: ServersPage,
 });
 
+const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '*',
+  component: NotFoundPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginRoute,
   mfaRoute,
@@ -112,6 +120,7 @@ const routeTree = rootRoute.addChildren([
   accountRegistrationRoute,
   dashboardRoute,
   serversRoute,
+  notFoundRoute,
 ]);
 
 export const createAppRouter = (context: RouterContext) =>
