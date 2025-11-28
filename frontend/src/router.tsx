@@ -11,7 +11,6 @@ import ForgotPasswordPage from './pages/auth/forgot-password';
 import ResetPasswordPage from './pages/auth/forgot-password/reset';
 import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
-import DashboardPage from './pages/dashboard';
 import ServersPage from './pages/servers';
 
 interface AuthContext {
@@ -22,6 +21,15 @@ interface AuthContext {
 interface RouterContext {
   auth: AuthContext;
 }
+
+const beforeLoadAuthenticated = ({ context }: { context: RouterContext }) => {
+  if (context.auth.isMfaPending) {
+    throw redirect({ to: '/mfa' });
+  }
+  if (!context.auth.isAuthenticated) {
+    throw redirect({ to: '/login' });
+  }
+};
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
@@ -55,72 +63,43 @@ const mfaRoute = createRoute({
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
+  beforeLoad: beforeLoadAuthenticated,
   component: ForgotPasswordPage,
 });
 
 const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/password-reset/$token',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
+  beforeLoad: beforeLoadAuthenticated,
   component: ResetPasswordPage,
 });
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/register',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
+  beforeLoad: beforeLoadAuthenticated,
   component: RegisterPage,
 });
 
 const accountRegistrationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/account-registration/$token',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/' });
-    }
-  },
+  beforeLoad: beforeLoadAuthenticated,
   component: AccountRegistrationPage,
 });
 
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isMfaPending) {
-      throw redirect({ to: '/mfa' });
-    }
-    if (!context.auth.isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
+  beforeLoad: () => {
+    throw redirect({ to: '/servers' });
   },
-  component: DashboardPage,
 });
 
 const serversRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/servers',
-  beforeLoad: ({ context }) => {
-    if (context.auth.isMfaPending) {
-      throw redirect({ to: '/mfa' });
-    }
-    if (!context.auth.isAuthenticated) {
-      throw redirect({ to: '/login' });
-    }
-  },
+  beforeLoad: beforeLoadAuthenticated,
   component: ServersPage,
 });
 
