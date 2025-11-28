@@ -95,7 +95,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     /**
      * @var Collection<int, Server>
      */
-    #[ORM\ManyToMany(targetEntity: Server::class, mappedBy: '_user')]
+    #[ORM\ManyToMany(targetEntity: Server::class, mappedBy: 'users')]
     private Collection $servers;
 
     public function __construct()

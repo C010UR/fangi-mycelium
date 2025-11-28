@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Entity\Trait\SerializableTimestampableEntityTrait;
 use App\ListQueryManagement\Attribute as LqmA;
+use App\Model\RelativeUrl;
 use App\Repository\ServerRepository;
 use App\Serializer\Interface\DepthAwareNormalizableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,6 +25,10 @@ use Symfony\Component\Uid\Uuid;
 #[LqmA\Orders(new LqmA\Order('id', '{server}.id'), [
     new LqmA\Order('id', '{server}.id'),
     new LqmA\Order('name', '{server}.name'),
+    new LqmA\Order('is_active', '{server}.isActive'),
+    new LqmA\Order('is_banned', '{server}.isBanned'),
+    new LqmA\Order('created_at', '{server}.createdAt'),
+    new LqmA\Order('updated_at', '{server}.updatedAt'),
 ])]
 #[LqmA\Search([
     new LqmA\SearchParam('name', '{server}.name'),
@@ -57,10 +62,10 @@ class Server implements DepthAwareNormalizableInterface
     private ?string $authToken = null;
 
     #[ORM\Column]
-    private ?bool $isActive = null;
+    private ?bool $isActive = true;
 
     #[ORM\Column]
-    private ?bool $isBanned = null;
+    private ?bool $isBanned = false;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -98,11 +103,17 @@ class Server implements DepthAwareNormalizableInterface
         return $this;
     }
 
-    #[Serializer\Groups(['short', 'long'])]
-    #[Serializer\SerializedName('image_url')]
+    #[Serializer\Ignore]
     public function getImageUrl(): ?string
     {
         return $this->imageUrl;
+    }
+
+    #[Serializer\Groups(['short', 'long'])]
+    #[Serializer\SerializedName('image_url')]
+    public function getImageUrlObject(): ?RelativeUrl
+    {
+        return $this->imageUrl ? new RelativeUrl($this->imageUrl) : null;
     }
 
     public function setImageUrl(?string $imageUrl): static
@@ -246,7 +257,7 @@ class Server implements DepthAwareNormalizableInterface
 
     public function generateClientId(): string
     {
-        $clientId = Uuid::v4();
+        $clientId = Uuid::v4()->toRfc4122();
         $this->clientId = $clientId;
 
         return $clientId;

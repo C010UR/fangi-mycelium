@@ -50,6 +50,11 @@ nelmio_api_doc:
           minimum: 0
           description: "ID."
           example: 82
+        UUID:
+          type: string
+          format: uuid
+          description: "UUID."
+          example: "123e4567-e89b-12d3-a456-426614174000"
         UserRole:
           type: string
           enum: [ROLE_USER, ROLE_ADMIN]

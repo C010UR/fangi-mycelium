@@ -30,12 +30,6 @@ class PasswordResetHandler
         private int $selectorLength,
         private int $verifierLength,
         private string $expirationTime,
-        private string $passwordResetSubject,
-        private string $passwordResetTemplate,
-        private string $passwordResetUrl,
-        private string $accountActivationSubject,
-        private string $accountActivationTemplate,
-        private string $accountActivationUrl,
     ) {
     }
 
@@ -135,13 +129,10 @@ class PasswordResetHandler
         $this->mailer->sendPasswordResetEmail(
             $token,
             $user,
-            StringHelper::replace($this->passwordResetUrl, ['token' => $token->getToken()]),
-            $this->passwordResetSubject,
-            $this->passwordResetTemplate,
         );
     }
 
-    public function prepareAccountActivation(User $user, Server $server): void
+    public function prepareAccountActivation(User $user): void
     {
         $user->setPassword('');
         $this->entityManager->persist($user);
@@ -151,10 +142,6 @@ class PasswordResetHandler
         $this->mailer->sendAccountActivationEmail(
             $token,
             $user,
-            $server,
-            StringHelper::replace($this->accountActivationUrl, ['token' => $token->getToken()]),
-            $this->accountActivationSubject,
-            $this->accountActivationTemplate,
         );
     }
 }

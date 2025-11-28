@@ -16,7 +16,6 @@ final class EmailTwoFactorProvider implements TwoFactorProviderInterface
     public function __construct(
         private CodeGenerator $codeGenerator,
         private TwoFactorFormRendererInterface $formRenderer,
-        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 

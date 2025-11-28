@@ -27,6 +27,7 @@ class MyceliumExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $this->configureSecurity($container, $config['security']);
+        $this->configureEmails($container, $config['emails']);
     }
 
     private function configureSecurity(ContainerBuilder $container, array $config): void
@@ -98,8 +99,6 @@ class MyceliumExtension extends Extension
             $generatorDefinition->setArguments([
                 '$digits' => $config['code_length'],
                 '$expirationTime' => $config['code_expiration_time'],
-                '$subject' => $config['subject'],
-                '$template' => $config['template'],
             ]);
             $container->setDefinition($config['generator'], $generatorDefinition);
         }
@@ -167,12 +166,6 @@ class MyceliumExtension extends Extension
             '$selectorLength' => $config['selector_length'],
             '$verifierLength' => $config['verifier_length'],
             '$expirationTime' => $config['token_expiration_time'],
-            '$passwordResetSubject' => $config['email']['password_reset']['subject'],
-            '$passwordResetTemplate' => $config['email']['password_reset']['template'],
-            '$passwordResetUrl' => $config['email']['password_reset']['url_template'],
-            '$accountActivationSubject' => $config['email']['account_activation']['subject'],
-            '$accountActivationTemplate' => $config['email']['account_activation']['template'],
-            '$accountActivationUrl' => $config['email']['account_activation']['url_template'],
         ]);
         $container->setDefinition(PasswordResetHandler::class, $handlerDefinition);
     }
@@ -193,11 +186,13 @@ class MyceliumExtension extends Extension
         $handlerDefinition->setArguments([
             '$selectorLength' => $config['selector_length'],
             '$verifierLength' => $config['verifier_length'],
-            '$accountRegistrationSubject' => $config['email']['subject'],
-            '$accountRegistrationTemplate' => $config['email']['template'],
-            '$accountRegistrationUrl' => $config['email']['url_template'],
         ]);
         $container->setDefinition(AccountRegistrationHandler::class, $handlerDefinition);
+    }
+
+    private function configureEmails(ContainerBuilder $container, array $config): void
+    {
+        $container->setParameter('mycelium.emails', $config);
     }
 
     public function getAlias(): string

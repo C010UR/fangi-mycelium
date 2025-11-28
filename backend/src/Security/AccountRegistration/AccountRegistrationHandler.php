@@ -24,9 +24,6 @@ class AccountRegistrationHandler
         private MailerService $mailer,
         private int $selectorLength,
         private int $verifierLength,
-        private string $accountRegistrationSubject,
-        private string $accountRegistrationTemplate,
-        private string $accountRegistrationUrl,
     ) {
     }
 
@@ -113,9 +110,6 @@ class AccountRegistrationHandler
         $this->mailer->sendAccountRegistrationEmail(
             $token,
             $user,
-            StringHelper::replace($this->accountRegistrationUrl, ['token' => $token->getToken()]),
-            $this->accountRegistrationSubject,
-            $this->accountRegistrationTemplate,
         );
     }
 }

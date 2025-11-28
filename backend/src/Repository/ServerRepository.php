@@ -5,41 +5,49 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Server;
+use App\Entity\User;
+use App\Enum\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\ListQueryManagement\LqmFactory;
+use App\ListQueryManagement\LqmResult;
+use App\ListQueryManagement\Model\QueryParamAliasMap;
+use App\Service\UserService;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @extends ServiceEntityRepository<Server>
  */
 class ServerRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private LqmFactory $lqmFactory,
+        private Security $security
+    ) {
         parent::__construct($registry, Server::class);
     }
 
-    //    /**
-    //     * @return Server[] Returns an array of Server objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findListByRequest(Request $request, ?User $user = null): LqmResult
+    {
+        $processor = $this->lqmFactory->create($request, Server::class, $user);
 
-    //    public function findOneBySomeField($value): ?Server
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $query = $this->createQueryBuilder('server')
+            ->leftJoin('server.users', 'user')
+            ->andWhere('user = :user')
+            ->setParameter('user', $user);
+
+        if (!$this->security->isGranted(UserRole::ADMIN)) {
+            $query
+            ->andWhere('server.isActive = true')
+            ->andWhere('server.isBanned = false');
+        }
+
+        $result = $processor->processQuery($query, new QueryParamAliasMap([
+            'server' => 'server',
+        ]));
+
+        return $result;
+    }
 }

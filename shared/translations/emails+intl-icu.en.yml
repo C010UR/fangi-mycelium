@@ -25,7 +25,7 @@ password_reset:
   button: "Reset Password"
 account_activation:
   subject: "Welcome, {name}!"
-  text_1: "Welcome to Fangi Mycelium! Please click the button below to register your account:"
+  text_1: "Welcome to Fangi Mycelium! You have been invited by {created_by_name}. Please click the button below to register your account:"
   link_alternative: "If the button does not work, you can copy and paste the link below into your browser:"
   sent_at: "This request was sent at {date}."
   text_2: "If you did not request a account registration, please ignore this email or contact our support team immediately. Your account will remain inactive."
@@ -38,8 +38,9 @@ account_registration:
   text_2: "If you did not request a account registration, please ignore this email or contact our support team immediately. Your account will remain inactive."
   button: "Register"
 server_setup:
-  subject: "Server Setup"
-  text_1: "Please use the following Client ID and Secret to setup your file server:"
+  subject: "{name}: Server Setup"
+  text_1: "Please use the following Client ID and Secret in your environment (.env file or shell environment) to setup your file server:"
   client_id: "CLIENT_ID={client_id}"
   secret: "CLIENT_SECRET={secret}"
-  text_2: "If you did not request this setup, please ignore this email or contact our support team immediately."
+  text_2: "If you lose this Client ID or Secret, you can generate a new one in the Fangi Mycelium dashboard."
+  text_3: "If you did not request this setup, please ignore this email or contact our support team immediately."

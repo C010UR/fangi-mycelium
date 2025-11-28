@@ -25,6 +25,9 @@ entity:
     activated: "User activated successfully."
     deactivated: "User deactivated successfully."
     resend_activation_email: "A new activation email was sent successfully."
+  server:
+    activated: "Server activated successfully."
+    deactivated: "Server deactivated successfully."
 
 form:
   generic:

@@ -15,14 +15,10 @@ final class CodeGenerator
 {
     public function __construct(
         private PersisterInterface $persister,
-        private TranslatorInterface $translator,
         private MailerService $mailer,
         private int $digits,
         private string $expirationTime,
-        private string $subject,
-        private string $template,
-    ) {
-    }
+    ) {}
 
     public function generateAndSend(EmailTwoFactorInterface $user): void
     {
@@ -41,12 +37,12 @@ final class CodeGenerator
 
         $mfa = $user->getEmailMFA();
 
-        $this->mailer->sendEmailMfa($user, $this->subject, $this->template);
+        $this->mailer->sendEmailMfa($user);
     }
 
     public function reSend(EmailTwoFactorInterface $user): void
     {
-        $this->mailer->sendEmailMfa($user, $this->subject, $this->template);
+        $this->mailer->sendEmailMfa($user);
     }
 
     protected function generateCode(int $min, int $max): int

@@ -26,8 +26,7 @@ class RegistrationType extends AbstractType implements PostSubmitFormInterface
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
         private FileService $fileService,
-    ) {
-    }
+    ) {}
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -76,12 +75,17 @@ class RegistrationType extends AbstractType implements PostSubmitFormInterface
         ]);
     }
 
+    /**
+     *
+     * @param FormInterface $form
+     * @param User $entity
+     * @param array $options
+     * @return User
+     */
     public function postSubmit(FormInterface $form, object $entity, array $options): object
     {
-        /* @var User $entity */
         $entity->setPassword($this->passwordHasher->hashPassword($entity, $form['password']->getData()));
         $entity->setRoles([UserRole::ADMIN]);
-
 
         if ($image = $form['image']->getData()) {
             $url = $this->fileService->upload($image);

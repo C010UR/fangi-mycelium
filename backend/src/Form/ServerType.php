@@ -5,19 +5,27 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Server;
+use App\Entity\User;
+use App\Form\Interface\PostSubmitFormInterface;
 use App\OpenApi\Attribute as OAC;
+use App\Service\FileService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OAC\Schema('#/components/schemas/ServerForm')]
-class ServerType extends AbstractType
+class ServerType extends AbstractType implements PostSubmitFormInterface
 {
+    public function __construct(
+        private FileService $fileService
+    ) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -55,9 +63,39 @@ class ServerType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([
-            'data_class' => Server::class,
-            'extra_fields_message' => 'form.generic.extra_fields',
-        ]);
+        $resolver
+            ->setDefaults([
+                'data_class' => Server::class,
+                'extra_fields_message' => 'form.generic.extra_fields',
+            ])
+            ->setRequired('created_by')
+            ->setAllowedTypes('created_by', User::class);
+    }
+
+    /**
+     *
+     * @param FormInterface $form
+     * @param Server $entity
+     * @param array $options
+     * @return Server
+     */
+    public function postSubmit(FormInterface $form, object $entity, array $options): object
+    {
+        $entity->setCreatedBy($options['created_by']);
+
+        if ($image = $form['image']->getData()) {
+            $url = $this->fileService->upload($image);
+            $entity->setImageUrl($url);
+        }
+
+        if (null === $entity->getClientId()) {
+            $entity->generateClientId();
+        }
+
+        $entity->generateSecret();
+
+        $options['created_by']->addServer($entity);
+
+        return $entity;
     }
 }
