@@ -12,6 +12,7 @@ use App\ListQueryManagement\Model\QueryParamAliasMap;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Uid\Uuid;
 
 class LqmDoctrineQueryBuilder
 {
@@ -122,6 +123,7 @@ class LqmDoctrineQueryBuilder
         $searchTokens = explode(' ', $search);
         $canBeNumber = null !== filter_var($search, \FILTER_VALIDATE_FLOAT, \FILTER_NULL_ON_FAILURE)
             || null !== filter_var($search, \FILTER_VALIDATE_INT, \FILTER_NULL_ON_FAILURE);
+        $canBeUuid = Uuid::isValid($search);
 
         $searchParameter = $this->nextParam('request_search');
         $searchNumberParameter = $this->nextParam('request_search');
@@ -144,7 +146,7 @@ class LqmDoctrineQueryBuilder
                 continue;
             }
 
-            if ($searchParam->isString) {
+            if (SearchParam::TYPE_STRING === $searchParam->type) {
                 $useSearchParameter = true;
                 $searchExprs[] = $expr->gt(\sprintf('SEARCH(LOWER(%s), :%s)', $column, $searchParameter), $similarity);
 
@@ -152,7 +154,13 @@ class LqmDoctrineQueryBuilder
                     $useSearchLikeParameter =   true;
                     $searchExprs[] = $expr->like(\sprintf('LOWER(%s)', $column), \sprintf(':%s', $parameter));
                 }
-            } elseif ($canBeNumber) {
+            } elseif (SearchParam::TYPE_ARRAY === $searchParam->type) {
+                $useSearchParameter = true;
+                $searchExprs[] = $expr->gt(\sprintf('JSON_ARRAY_SEARCH(%s, :%s)', $column, $searchParameter), $similarity);
+            } elseif ($canBeUuid && SearchParam::TYPE_UUID === $searchParam->type) {
+                $useSearchParameter = true;
+                $searchExprs[] = $expr->eq($column, ':' . $searchParameter);
+            } elseif ($canBeNumber && SearchParam::TYPE_NUMBER === $searchParam->type) {
                 $useSearchNumberParameter = true;
                 $searchExprs[] = $expr->eq($column, ':' . $searchNumberParameter);
             }
@@ -195,11 +203,24 @@ class LqmDoctrineQueryBuilder
 
     public function getCountQuery(): Query
     {
-        return (clone $this->query)
-            ->select(\sprintf('COUNT(DISTINCT %s)', $this->aliasMap->getPrimaryAlias()))
-            ->setMaxResults(null)
-            ->setFirstResult(null)
-            ->resetDQLPart('orderBy')
-            ->getQuery();
+
+        if (\is_array($this->aliasMap->getPrimaryAlias())) {
+            return (clone $this->query)
+                ->select(\sprintf(
+                    'COUNT(MULTI_DISTINCT(%s))',
+                    implode(', ', $this->aliasMap->getPrimaryAlias()),
+                ))
+                ->setMaxResults(null)
+                ->setFirstResult(null)
+                ->resetDQLPart('orderBy')
+                ->getQuery();
+        } else {
+            return (clone $this->query)
+                ->select(\sprintf('COUNT(DISTINCT(%s))', $this->aliasMap->getPrimaryAlias()))
+                ->setMaxResults(null)
+                ->setFirstResult(null)
+                ->resetDQLPart('orderBy')
+                ->getQuery();
+        }
     }
 }

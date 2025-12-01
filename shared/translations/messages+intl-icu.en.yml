@@ -29,6 +29,8 @@ entity:
     activated: "Server activated successfully."
     deactivated: "Server deactivated successfully."
     secret_generated: "Server secret generated successfully. Please check your email for the new secret."
+    module_added: "Module added to server successfully."
+    module_removed: "Module removed from server successfully."
 
 form:
   generic:
@@ -69,6 +71,8 @@ form:
     duplicate: "URLs must be unique."
     invalid_format: "URL must be a valid URL: (http|https)://(<domain>|<ip>)(:<port>)?"
     empty_url: "URL cannot be empty."
+  module:
+    invalid_inchoice: "Module is not valid or already added to server."
 
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."

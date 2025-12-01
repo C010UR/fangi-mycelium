@@ -39,13 +39,16 @@ class ServerRepository extends ServiceEntityRepository
 
         if (!$this->security->isGranted(UserRole::ADMIN)) {
             $query
-            ->andWhere('server.isActive = true')
-            ->andWhere('server.isBanned = false');
+                ->andWhere('server.isActive = true')
+                ->andWhere('server.isBanned = false');
         }
 
-        $result = $processor->processQuery($query, new QueryParamAliasMap([
-            'server' => 'server',
-        ]));
+        $result = $processor->processQuery($query, new QueryParamAliasMap(
+            'server',
+            [
+                'server' => 'server',
+            ],
+        ));
 
         return $result;
     }

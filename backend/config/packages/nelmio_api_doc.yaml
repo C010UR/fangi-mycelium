@@ -127,6 +127,68 @@ nelmio_api_doc:
               description: "Date of the last login."
               example: "2017-07-21T17:32:28Z"
               nullable: true
+        Module:
+          type: object
+          required:
+            - id
+            - name
+            - image_url
+            - description
+            - client_id
+            - urls
+            - is_active
+            - is_banned
+            - created_by
+            - created_at
+            - updated_at
+          properties:
+            id:
+              $ref: "#/components/schemas/DatabaseID"
+            name:
+              type: string
+              description: "Module name."
+              example: "My Module"
+            image_url:
+              type: string
+              nullable: true
+              description: "Module image URL."
+              example: "https://example.com/image.jpg"
+            description:
+              type: string
+              nullable: true
+              description: "Module description."
+              example: "This is a module."
+            client_id:
+              $ref: "#/components/schemas/UUID"
+            urls:
+              type: array
+              description: "List of allowed URLs."
+              items:
+                type: string
+                example: "https://example.com"
+            is_active:
+              type: boolean
+              description: "Whether module is active."
+              example: true
+            is_banned:
+              type: boolean
+              description: "Whether module is banned."
+              example: false
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the module (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
         Server:
           type: object
           required:
@@ -174,6 +236,34 @@ nelmio_api_doc:
               type: string
               nullable: true
               description: "Who created the server (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+        ServerAllowedModule:
+          type: object
+          required:
+            - server
+            - module
+            - created_by
+            - created_at
+            - updated_at
+          properties:
+            server:
+              $ref: "#/components/schemas/Server"
+            module:
+              $ref: "#/components/schemas/Module"
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the entry (full name + email)."
               example: "Olivia Rhye (example@example.com)"
             created_at:
               type: string
@@ -259,6 +349,13 @@ nelmio_api_doc:
                 format: uri
                 example: "https://example.com"
               nullable: true
+        ServerAllowedModuleForm:
+          type: object
+          required:
+            - module
+          properties:
+            module:
+              $ref: "#/components/schemas/DatabaseID"
       securitySchemes:
         token_auth:
           type: http

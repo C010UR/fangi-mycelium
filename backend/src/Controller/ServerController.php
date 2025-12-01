@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Controller\Abstract\ExtendedAbstractController;
+use App\Entity\Module;
 use App\Entity\Server;
+use App\Entity\ServerAllowedModule;
 use App\Enum\UserRole;
+use App\Form\ServerAllowedModuleType;
 use App\Form\ServerType;
 use App\ListQueryManagement\Attribute\OpenApi as LqmA;
 use App\OpenApi\Attribute as OAC;
+use App\Repository\ModuleRepository;
+use App\Repository\ServerAllowedModuleRepository;
 use App\Repository\ServerRepository;
 use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenApi\Attributes as OA;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -61,7 +67,7 @@ final class ServerController extends ExtendedAbstractController
             'servers',
         ],
         parameters: [
-            new OAC\DatabaseIdParameter('Server ID'),
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
             new LqmA\ListParameters(Server::class),
         ],
         responses: [
@@ -126,7 +132,7 @@ final class ServerController extends ExtendedAbstractController
             'servers',
         ],
         parameters: [
-            new OAC\DatabaseIdParameter('Server ID'),
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
         ],
         requestBody: new OAC\FormDataBody(
             'Server update information.',
@@ -168,7 +174,7 @@ final class ServerController extends ExtendedAbstractController
             'servers',
         ],
         parameters: [
-            new OAC\DatabaseIdParameter('Server ID'),
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
         ],
         responses: [
             new OAC\SuccessResponse('Server secret generated successfully.'),
@@ -240,5 +246,138 @@ final class ServerController extends ExtendedAbstractController
         $this->entityManager->flush();
 
         return $this->jsonm('entity.server.deactivated');
+    }
+
+    #[Route('/{id}/modules', name: 'modules', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(UserRole::USER)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Get(
+        operationId: 'v1ServerModules',
+        summary: 'Fetch Server Modules',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
+        ],
+        responses: [
+            new OAC\JsonResponse(200, 'Server Modules', schema: new LqmA\ListResponse(ServerAllowedModule::class)),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::USER),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function modules(Request $request, Server $server, ServerAllowedModuleRepository $serverAllowedModuleRepository): JsonResponse
+    {
+        return $this->jsonl($serverAllowedModuleRepository->findListByRequest($request, $server, $this->getUser()));
+    }
+
+    #[Route('/{id}/modules/can-add', name: 'modules_can_add', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted(UserRole::ADMIN)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Get(
+        operationId: 'v1ServerModulesCanAdd',
+        summary: 'Fetch Server Modules that can be added',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
+        ],
+        responses: [
+            new OAC\JsonResponse(200, 'Server Modules', schema: new LqmA\ListResponse(Module::class)),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::ADMIN),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function modulesCanAdd(Request $request, Server $server, ModuleRepository $moduleRepository): JsonResponse
+    {
+        return $this->jsonl($moduleRepository->findListAvailableByRequest($request, $server, $this->getUser()));
+    }
+
+    #[Route('/{id}/modules/add', name: 'modules_add', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted(UserRole::ADMIN)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Post(
+        operationId: 'v1ServerModulesAdd',
+        summary: 'Add Module to Server',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
+        ],
+        requestBody: new OAC\FormDataBody(
+            'Module ID.',
+            schema: new OAC\Model(ServerAllowedModuleType::class),
+        ),
+        responses: [
+            new OAC\SuccessResponse('Module added to server successfully.'),
+            new OAC\BadRequestResponse(),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::ADMIN),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function modulesAdd(Request $request, Server $server, ServerAllowedModuleRepository $serverAllowedModuleRepository): JsonResponse
+    {
+        $serverAllowedModule = $this->submitForm(
+            $request,
+            ServerAllowedModuleType::class,
+            new ServerAllowedModule(),
+            [
+                'server' => $server,
+                'created_by' => $this->getUser(),
+            ],
+        );
+
+        $this->entityManager->persist($serverAllowedModule);
+        $this->entityManager->flush();
+
+        return $this->jsonm('entity.server.module_added');
+    }
+
+    #[Route('/{id}/modules/{module_id}/remove', name: 'modules_remove', requirements: ['id' => '\d+', 'module_id' => '\d+'], methods: ['POST'])]
+    #[IsGranted(UserRole::ADMIN)]
+    #[IsGranted('view_server', subject: 'server')]
+    #[OA\Post(
+        operationId: 'v1ServerModulesRemove',
+        summary: 'Remove Module from Server',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new OAC\DatabaseIdParameter(description: 'Server ID'),
+            new OAC\DatabaseIdParameter('module_id', description: 'Module ID'),
+        ],
+        responses: [
+            new OAC\SuccessResponse('Module removed from server successfully.'),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::ADMIN),
+            new OAC\NotFoundResponse(),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function modulesRemove(
+        #[MapEntity(mapping: ['id' => 'id'])]
+        Server $server,
+        #[MapEntity(mapping: ['module_id' => 'id'])]
+        Module $module,
+        ServerAllowedModuleRepository $serverAllowedModuleRepository,
+    ): JsonResponse {
+        $serverAllowedModule = $serverAllowedModuleRepository->findOneByServerAndModule($server, $module);
+
+        if (!$serverAllowedModule) {
+            throw $this->createNotFoundException();
+        }
+
+        $this->entityManager->remove($serverAllowedModule);
+        $this->entityManager->flush();
+
+        return $this->jsonm('entity.server.module_removed');
     }
 }

@@ -41,8 +41,8 @@ final class Version20250930123648 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_USER_USERNAME ON "user" (username)');
 
         // Search index
-        $this->addSql('CREATE INDEX IDX_USER_EMAIL ON "user" USING gin (LOWER(email) gin_trgm_ops)');
-        $this->addSql('CREATE INDEX IDX_USER_USERNAME ON "user" USING gin (LOWER(username) gin_trgm_ops)');
+        $this->addSql('CREATE INDEX IDX_SEARCH_USER_EMAIL ON "user" USING gin (LOWER(email) gin_trgm_ops)');
+        $this->addSql('CREATE INDEX IDX_SEARCH_USER_USERNAME ON "user" USING gin (LOWER(username) gin_trgm_ops)');
 
         $this->addSql('COMMENT ON COLUMN "user".last_login_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('COMMENT ON COLUMN "user".created_at IS \'(DC2Type:datetime_immutable)\'');

@@ -62,7 +62,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $imageUrl = null;
 
-    #[ORM\Column(type: Types::JSON, length: 255)]
+    #[ORM\Column(type: Types::JSON)]
     private array $roles = [UserRole::USER];
 
     /**
@@ -98,10 +98,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     #[ORM\ManyToMany(targetEntity: Server::class, mappedBy: 'users')]
     private Collection $servers;
 
+    /**
+     * @var Collection<int, UserModuleChoice>
+     */
+    #[ORM\OneToMany(targetEntity: UserModuleChoice::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $userModuleChoices;
+
     public function __construct()
     {
         $this->mfaMethods = new ArrayCollection();
         $this->servers = new ArrayCollection();
+        $this->userModuleChoices = new ArrayCollection();
     }
 
     /**
@@ -424,6 +431,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     {
         if ($this->servers->removeElement($server)) {
             $server->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserModuleChoice>
+     */
+    #[Serializer\Ignore]
+    public function getUserModuleChoices(): Collection
+    {
+        return $this->userModuleChoices;
+    }
+
+    public function addUserModuleChoice(UserModuleChoice $userModuleChoice): static
+    {
+        if (!$this->userModuleChoices->contains($userModuleChoice)) {
+            $this->userModuleChoices->add($userModuleChoice);
+            $userModuleChoice->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserModuleChoice(UserModuleChoice $userModuleChoice): static
+    {
+        if ($this->userModuleChoices->removeElement($userModuleChoice)) {
+            // set the owning side to null (unless already changed)
+            if ($userModuleChoice->getUser() === $this) {
+                $userModuleChoice->setUser(null);
+            }
         }
 
         return $this;

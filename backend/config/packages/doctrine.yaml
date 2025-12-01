@@ -21,7 +21,9 @@ doctrine:
       string_functions:
         search: App\Doctrine\DQL\Search
         json_array_contains: App\Doctrine\DQL\JsonArrayContains
-      datetime_functions:
+        json_array_search: App\Doctrine\DQL\JsonArraySearch
+      numeric_functions:
+        multi_distinct: App\Doctrine\DQL\MultiDistinct
 
 when@test:
   doctrine:

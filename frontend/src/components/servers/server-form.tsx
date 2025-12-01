@@ -33,7 +33,7 @@ import { ApiRoutes, fangiFetch, FetchError } from '@/lib/api';
 const formSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters').max(255),
   image: z.array(z.instanceof(File)).max(1, 'Only one image is allowed').optional(),
-  allowed_urls: z
+  urls: z
     .array(
       z.object({
         value: z
@@ -64,7 +64,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
 
   const defaultValues: Partial<FormValues> = {
     name: initialData?.name || '',
-    allowed_urls: initialData?.allowed_urls?.map(url => ({ value: url })) || [{ value: '' }],
+    urls: initialData?.urls?.map(url => ({ value: url })) || [{ value: '' }],
     image: [],
   };
 
@@ -75,19 +75,19 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'allowed_urls',
+    name: 'urls',
   });
 
   async function onSubmit(data: FormValues) {
     setIsPending(true);
     try {
-      const allowedUrls = data.allowed_urls?.map(item => item.value) || [];
+      const urls = data.urls?.map(item => item.value) || [];
       const imageFile = data.image?.[0] || null;
 
       const payload = {
         name: data.name,
         image: imageFile,
-        allowed_urls: allowedUrls,
+        urls: urls,
       };
 
       let server: Server;
@@ -101,7 +101,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
         });
         toast.success('Server updated successfully');
       } else {
-        if (!payload.name || !payload.allowed_urls) {
+        if (!payload.name || !payload.urls) {
           throw new Error('Missing required fields');
         }
         server = await fangiFetch({
@@ -204,7 +204,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
 
         <FormField
           control={form.control}
-          name="allowed_urls"
+          name="urls"
           render={() => (
             <FormItem className="space-y-4">
               <div className="flex items-center justify-between">
@@ -225,7 +225,7 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
                   <FormField
                     key={field.id}
                     control={form.control}
-                    name={`allowed_urls.${index}.value`}
+                    name={`urls.${index}.value`}
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-2">
@@ -249,9 +249,9 @@ export function ServerForm({ initialData, onSuccess }: ServerFormProps) {
                 ))}
               </div>
               <FormMessage />
-              {(form.formState.errors.allowed_urls as any)?.root?.message && (
+              {(form.formState.errors.urls as any)?.root?.message && (
                 <p className="text-[0.8rem] font-medium text-destructive">
-                  {(form.formState.errors.allowed_urls as any).root.message}
+                  {(form.formState.errors.urls as any).root.message}
                 </p>
               )}
             </FormItem>

@@ -24,7 +24,7 @@ final class Version20251127171332 extends AbstractMigration
                 created_by_id INT NOT NULL,
                 name VARCHAR(255) NOT NULL,
                 image_url TEXT DEFAULT NULL,
-                allowed_urls JSON NOT NULL,
+                urls JSONB NOT NULL,
                 secret VARCHAR(255) NOT NULL,
                 auth_token VARCHAR(100) DEFAULT NULL,
                 client_id UUID NOT NULL,
@@ -38,6 +38,14 @@ final class Version20251127171332 extends AbstractMigration
 
         $this->addSql('CREATE INDEX IDX_5A6DD5F6B03A8386 ON server (created_by_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_SERVER_NAME ON server (name)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_IDENTIFIER_SERVER_CLIENT_ID ON server (client_id)');
+
+        // Search index
+        $this->addSql('CREATE INDEX IDX_SEARCH_SERVER_NAME ON server USING gin (LOWER(name) gin_trgm_ops)');
+
+        $this->addSql('COMMENT ON COLUMN server.client_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('COMMENT ON COLUMN server.created_at IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('COMMENT ON COLUMN server.updated_at IS \'(DC2Type:datetime_immutable)\'');
 
         $this->addSql(<<<SQL
             CREATE TABLE server_user (

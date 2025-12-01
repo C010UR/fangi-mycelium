@@ -131,15 +131,11 @@ export default function ServersPage() {
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
       },
       {
-        accessorKey: 'url',
-        header: 'URL',
-      },
-      {
-        accessorKey: 'allowed_urls',
+        accessorKey: 'urls',
         header: 'Allowed URLs',
         size: 250,
         cell: ({ row }) => {
-          const urls = row.original.allowed_urls || [];
+          const urls = row.original.urls || [];
           const maxVisible = 2;
 
           if (urls.length === 0) {
@@ -177,6 +173,10 @@ export default function ServersPage() {
             </div>
           );
         },
+      },
+      {
+        accessorKey: 'client_id',
+        header: 'Client ID',
       },
       {
         accessorKey: 'is_active',

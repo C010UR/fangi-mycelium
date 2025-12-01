@@ -32,6 +32,15 @@ const beforeLoadAuthenticated = ({ context }: { context: RouterContext }) => {
   }
 };
 
+const beforeLoadUnauthenticated = ({ context }: { context: RouterContext }) => {
+  if (context.auth.isMfaPending) {
+    throw redirect({ to: '/mfa' });
+  }
+  if (context.auth.isAuthenticated) {
+    throw redirect({ to: '/' });
+  }
+};
+
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />,
   notFoundComponent: NotFoundPage,
@@ -65,28 +74,28 @@ const mfaRoute = createRoute({
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/forgot-password',
-  beforeLoad: beforeLoadAuthenticated,
+  beforeLoad: beforeLoadUnauthenticated,
   component: ForgotPasswordPage,
 });
 
 const resetPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/password-reset/$token',
-  beforeLoad: beforeLoadAuthenticated,
+  beforeLoad: beforeLoadUnauthenticated,
   component: ResetPasswordPage,
 });
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/register',
-  beforeLoad: beforeLoadAuthenticated,
+  beforeLoad: beforeLoadUnauthenticated,
   component: RegisterPage,
 });
 
 const accountRegistrationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/account-registration/$token',
-  beforeLoad: beforeLoadAuthenticated,
+  beforeLoad: beforeLoadUnauthenticated,
   component: AccountRegistrationPage,
 });
 

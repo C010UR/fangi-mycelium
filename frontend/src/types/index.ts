@@ -111,8 +111,9 @@ export interface Server {
   id: number;
   name: string;
   image_url: string | null;
-  allowed_urls: string[];
+  urls: string[];
   url: string;
+  client_id: string;
   is_active: boolean;
   is_banned: boolean;
   created_by: string | null;
@@ -123,5 +124,5 @@ export interface Server {
 export interface ServerForm {
   name: string;
   image: File | null;
-  allowed_urls: string[] | null;
+  urls: string[] | null;
 }

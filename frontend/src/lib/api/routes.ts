@@ -35,7 +35,19 @@ class ApiRoutes {
     ACTIVATE: (id: string) => `${this.BASE}/servers/${id}/activate`,
     DEACTIVATE: (id: string) => `${this.BASE}/servers/${id}/deactivate`,
     GENERATE_SECRET: (id: string) => `${this.BASE}/servers/${id}/generate-secret`,
-  };
+  } as const;
+
+  static readonly SERVER_MODULES = {
+    LIST: (serverId: string) => `${this.BASE}/servers/${serverId}/modules`,
+    CAN_ADD_LIST: (serverId: string) => `${this.BASE}/servers/${serverId}/modules/can-add`,
+    ADD: (serverId: string) => `${this.BASE}/servers/${serverId}/modules/add`,
+    REMOVE: (serverId: string, moduleId: string) =>
+      `${this.BASE}/servers/${serverId}/modules/${moduleId}/remove`,
+  } as const;
+
+  static readonly MODULES = {
+    LIST: `${this.BASE}/modules`,
+  } as const;
 }
 
 export { ApiRoutes };

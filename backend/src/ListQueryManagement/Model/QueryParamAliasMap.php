@@ -8,25 +8,19 @@ use InvalidArgumentException;
 
 class QueryParamAliasMap
 {
-    private array $mapping;
-    private string $primaryAlias;
-
     /**
      * Note: First key will be treated as a primary alias.
      *
      * @param array $mapping Format: ['config_alias' => 'db_alias']
      */
-    public function __construct(array $mapping)
+    public function __construct(private string|array $primaryAlias, private array $mapping)
     {
         if (empty($mapping)) {
             throw new InvalidArgumentException('Alias map cannot be empty');
         }
-
-        $this->mapping = $mapping;
-        $this->primaryAlias = array_values($mapping)[0];
     }
 
-    public function getPrimaryAlias(): string
+    public function getPrimaryAlias(): array|string
     {
         return $this->primaryAlias;
     }

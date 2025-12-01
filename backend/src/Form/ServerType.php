@@ -46,7 +46,7 @@ class ServerType extends AbstractType implements PostSubmitFormInterface
                 'required' => false,
                 'mapped' => false,
             ])
-            ->add('allowed_urls', CollectionType::class, [
+            ->add('urls', CollectionType::class, [
                 'entry_type' => TextType::class,
                 'invalid_message' => 'form.allowed_urls.invalid',
                 'constraints' => [
