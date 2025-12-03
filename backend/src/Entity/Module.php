@@ -21,6 +21,16 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\HasLifecycleCallbacks]
 #[Assert\UniqueEntity(['name'], message: 'form.name.already_taken')]
 #[LqmA\Schema('#/components/schemas/Module')]
+#[LqmA\Filters([
+    new LqmA\Filter(
+        'owner',
+        '{module}.createdBy',
+        [
+            LqmA\FilterOperator::Equal,
+        ],
+        roles: ['ROLE_ADMIN'],
+    ),
+])]
 #[LqmA\Orders(new LqmA\Order('id', '{module}.id'), [
     new LqmA\Order('id', '{module}.id'),
     new LqmA\Order('name', '{module}.name'),
@@ -61,10 +71,10 @@ class Module implements DepthAwareNormalizableInterface
     private array $urls = [];
 
     #[ORM\Column]
-    private ?bool $isActive = null;
+    private ?bool $isActive = true;
 
     #[ORM\Column]
-    private ?bool $isBanned = null;
+    private ?bool $isBanned = false;
 
     /**
      * @var Collection<int, ServerAllowedModule>
@@ -190,7 +200,8 @@ class Module implements DepthAwareNormalizableInterface
         return $this;
     }
 
-    #[Serializer\Ignore]
+    #[Serializer\Groups(['short', 'long'])]
+    #[Serializer\SerializedName('created_by_entity')]
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;

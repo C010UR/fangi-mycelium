@@ -22,7 +22,6 @@ class ModuleRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry $registry,
         private LqmFactory $lqmFactory,
-        private ServerAllowedModuleRepository $serverAllowedModuleRepository,
     ) {
         parent::__construct($registry, Module::class);
     }
@@ -36,16 +35,14 @@ class ModuleRepository extends ServiceEntityRepository
         if (null !== $user) {
             $expr = $query->expr();
 
-            $expr->orX(
-                $expr->eq('module.createdBy', ':user'),
-                $expr->andX(
-                    $expr->eq('module.isActive', 'true'),
-                    $expr->eq('module.isBanned', 'false'),
-                ),
-            );
-
             $query
-                ->andWhere($expr)
+                ->andWhere($expr->orX(
+                    $expr->eq('module.createdBy', ':user'),
+                    $expr->andX(
+                        $expr->eq('module.isActive', 'true'),
+                        $expr->eq('module.isBanned', 'false'),
+                    ),
+                ))
                 ->setParameter('user', $user);
         } else {
             $query

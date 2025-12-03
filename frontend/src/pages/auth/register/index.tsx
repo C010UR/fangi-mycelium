@@ -36,7 +36,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ApiRoutes, fangiFetch, FetchError } from '@/lib/api';
-import type { RegistrationResponse } from '@/types';
+import type { ApiSuccess } from '@/types';
 
 const registrationSchema = z.object({
   email: z
@@ -71,7 +71,7 @@ function RegisterPage() {
 
   const registerMutation = useMutation({
     mutationFn: (data: RegistrationFormValues) =>
-      fangiFetch<RegistrationResponse, RegistrationFormValues>({
+      fangiFetch<ApiSuccess, RegistrationFormValues>({
         route: ApiRoutes.REGISTER.POST,
         method: 'POST',
         contentType: 'multipart/form-data',

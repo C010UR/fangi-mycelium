@@ -55,9 +55,11 @@ function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton isActive={activeItem === 'modules'} tooltip="Modules">
-              <Puzzle />
-              <span>Modules</span>
+            <SidebarMenuButton asChild isActive={activeItem === 'modules'} tooltip="Modules">
+              <Link to="/modules">
+                <Puzzle />
+                <span>Modules</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           {isAdmin && (
@@ -105,11 +107,7 @@ function SidebarUserProfile() {
           <ChevronsUpDown className="size-4 shrink-0 text-sidebar-foreground/60" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="top"
-        align="start"
-        className="w-[--radix-dropdown-menu-trigger-width]"
-      >
+      <DropdownMenuContent side="top" align="start" className="w-54">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
             <div>

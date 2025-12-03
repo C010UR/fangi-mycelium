@@ -73,6 +73,9 @@ form:
     empty_url: "URL cannot be empty."
   module:
     invalid_inchoice: "Module is not valid or already added to server."
+  description:
+    invalid: "Description is not valid."
+    too_long: "Description must contain at most {limit} characters."
 
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."

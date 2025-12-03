@@ -75,7 +75,8 @@ class ServerAllowedModule implements DepthAwareNormalizableInterface
         return $this;
     }
 
-    #[Serializer\Ignore]
+    #[Serializer\Groups(['short', 'long'])]
+    #[Serializer\SerializedName('created_by_entity')]
     public function getCreatedBy(): ?User
     {
         return $this->createdBy;

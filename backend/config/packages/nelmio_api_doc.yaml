@@ -60,7 +60,7 @@ nelmio_api_doc:
           enum: [ROLE_USER, ROLE_ADMIN]
           description: "Authorization Role."
           example: ROLE_USER
-        User:
+        UserShort:
           type: object
           required:
             - id
@@ -127,6 +127,76 @@ nelmio_api_doc:
               description: "Date of the last login."
               example: "2017-07-21T17:32:28Z"
               nullable: true
+        User:
+          type: object
+          required:
+            - id
+            - email
+            - username
+            - image_url
+            - roles
+            - is_active
+            - is_banned
+            - is_activated
+            - created_by
+            - created_by_entity
+            - created_at
+            - updated_at
+            - last_login_at
+          properties:
+            id:
+              $ref: "#/components/schemas/DatabaseID"
+            email:
+              $ref: "#/components/schemas/Email"
+            username:
+              type: string
+              description: "Username."
+              example: "johndoe"
+            image_url:
+              type: string
+              nullable: true
+              description: "User image URL."
+              example: "https://example.com/image.jpg"
+            roles:
+              type: array
+              description: "User roles."
+              items:
+                $ref: "#/components/schemas/UserRole"
+            is_active:
+              type: boolean
+              description: "Whether user is active."
+              example: true
+            is_banned:
+              type: boolean
+              description: "Whether user is banned."
+              example: false
+            is_activated:
+              type: boolean
+              description: "Whether user is activated."
+              example: true
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the user (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
+            created_by_entity:
+              $ref: "#/components/schemas/UserShort"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+            last_login_at:
+              type: string
+              format: date-time
+              description: "Date of the last login."
+              example: "2017-07-21T17:32:28Z"
+              nullable: true
         Module:
           type: object
           required:
@@ -139,6 +209,7 @@ nelmio_api_doc:
             - is_active
             - is_banned
             - created_by
+            - created_by_entity
             - created_at
             - updated_at
           properties:
@@ -179,6 +250,8 @@ nelmio_api_doc:
               nullable: true
               description: "Who created the module (full name + email)."
               example: "Olivia Rhye (example@example.com)"
+            created_by_entity:
+              $ref: "#/components/schemas/UserShort"
             created_at:
               type: string
               format: date-time
@@ -200,6 +273,7 @@ nelmio_api_doc:
             - is_active
             - is_banned
             - created_by
+            - created_by_entity
             - created_at
             - updated_at
           properties:
@@ -237,6 +311,8 @@ nelmio_api_doc:
               nullable: true
               description: "Who created the server (full name + email)."
               example: "Olivia Rhye (example@example.com)"
+            created_by_entity:
+              $ref: "#/components/schemas/UserShort"
             created_at:
               type: string
               format: date-time
@@ -253,6 +329,7 @@ nelmio_api_doc:
             - server
             - module
             - created_by
+            - created_by_entity
             - created_at
             - updated_at
           properties:
@@ -265,6 +342,8 @@ nelmio_api_doc:
               nullable: true
               description: "Who created the entry (full name + email)."
               example: "Olivia Rhye (example@example.com)"
+            created_by_entity:
+              $ref: "#/components/schemas/UserShort"
             created_at:
               type: string
               format: date-time
@@ -328,7 +407,8 @@ nelmio_api_doc:
           type: object
           required:
             - name
-            - allowed_urls
+            - image
+            - urls
           properties:
             name:
               type: string
@@ -341,7 +421,7 @@ nelmio_api_doc:
               format: binary
               description: "Server image file."
               nullable: true
-            allowed_urls:
+            urls:
               type: array
               description: "List of allowed URLs."
               items:
@@ -356,6 +436,38 @@ nelmio_api_doc:
           properties:
             module:
               $ref: "#/components/schemas/DatabaseID"
+        ModuleForm:
+          type: object
+          required:
+            - name
+            - image
+            - description
+            - urls
+          properties:
+            name:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Module name."
+              example: "My Module"
+            description:
+              type: string
+              nullable: true
+              description: "Module description."
+              example: "This is a module."
+            image:
+              type: string
+              format: binary
+              description: "Module image file."
+              nullable: true
+            urls:
+              type: array
+              description: "List of allowed URLs."
+              items:
+                type: string
+                format: uri
+                example: "https://example.com"
+              nullable: true
       securitySchemes:
         token_auth:
           type: http
@@ -374,6 +486,10 @@ nelmio_api_doc:
         description: Password reset endpoints.
       - name: registration
         description: Account registration endpoints.
+      - name: servers
+        description: Server management endpoints.
+      - name: modules
+        description: Module management endpoints.
   areas: # to filter documented areas
     path_patterns:
       - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

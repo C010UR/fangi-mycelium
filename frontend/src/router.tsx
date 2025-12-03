@@ -13,6 +13,7 @@ import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
 import ServersPage from './pages/servers';
 import ServerDetailPage from './pages/servers/detail';
+import ModulesPage from './pages/modules';
 import NotFoundPage from './pages/not-found';
 
 interface AuthContext {
@@ -122,6 +123,13 @@ const serverDetailRoute = createRoute({
   component: ServerDetailPage,
 });
 
+const modulesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/modules',
+  beforeLoad: beforeLoadAuthenticated,
+  component: ModulesPage,
+});
+
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '*',
@@ -138,6 +146,7 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   serversRoute,
   serverDetailRoute,
+  modulesRoute,
   notFoundRoute,
 ]);
 

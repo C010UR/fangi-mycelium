@@ -2,30 +2,16 @@ export type MFAType = 'email';
 
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN';
 
-export interface MFAMethod {
-  method: MFAType;
-  recipient: string;
-}
-
-export interface User {
-  id: number;
-  email: string;
-  username: string;
-  image_url: string | null;
-  roles: UserRole[];
-  is_active: boolean;
-  is_banned: boolean;
-  is_activated: boolean;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-  last_login_at: string | null;
-}
-
 export interface ApiError {
-  error: boolean;
+  error: true;
   status_code: number;
   error_description: string;
+}
+
+export interface ApiSuccess {
+  error: false;
+  status_code: number;
+  message: string;
 }
 
 export interface AuthResponse {
@@ -49,20 +35,7 @@ export interface MfaVerifyRequest {
   code: string;
 }
 
-export interface RegistrationForm {
-  email: string;
-  username: string;
-  password: string;
-  image: File | null;
-}
-
-export interface RegistrationResponse {
-  error: boolean;
-  status_code: number;
-  message?: string;
-  error_description?: string;
-}
-
+// List types
 export type FilterOperator =
   | 'eq'
   | 'ne'
@@ -107,6 +80,43 @@ export interface ListResult<T> {
   data: T[];
 }
 
+// Entity types
+export interface MFAMethod {
+  method: MFAType;
+  recipient: string;
+}
+
+export interface UserShort {
+  id: number;
+  email: string;
+  username: string;
+  image_url: string | null;
+  roles: UserRole[];
+  is_active: boolean;
+  is_banned: boolean;
+  is_activated: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  last_login_at: string | null;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  username: string;
+  image_url: string | null;
+  roles: UserRole[];
+  is_active: boolean;
+  is_banned: boolean;
+  is_activated: boolean;
+  created_by: string | null;
+  created_by_entity: UserShort | null;
+  created_at: string;
+  updated_at: string;
+  last_login_at: string | null;
+}
+
 export interface Server {
   id: number;
   name: string;
@@ -116,7 +126,8 @@ export interface Server {
   client_id: string;
   is_active: boolean;
   is_banned: boolean;
-  created_by: string | null;
+  created_by: string;
+  created_by_entity: UserShort;
   created_at: string;
   updated_at: string;
 }
@@ -136,7 +147,8 @@ export interface Module {
   urls: string[];
   is_active: boolean;
   is_banned: boolean;
-  created_by: string | null;
+  created_by: string;
+  created_by_entity: UserShort;
   created_at: string;
   updated_at: string;
 }
@@ -144,7 +156,8 @@ export interface Module {
 export interface ServerAllowedModule {
   server: Server;
   module: Module;
-  created_by: string | null;
+  created_by: string;
+  created_by_entity: UserShort;
   created_at: string;
   updated_at: string;
 }

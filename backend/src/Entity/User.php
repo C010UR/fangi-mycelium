@@ -271,7 +271,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
         return $this;
     }
 
-    #[Serializer\Ignore]
+    #[Serializer\Groups(['long'])]
+    #[Serializer\SerializedName('created_by_entity')]
     public function getCreatedBy(): ?self
     {
         return $this->createdBy;

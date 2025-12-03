@@ -47,6 +47,11 @@ class ApiRoutes {
 
   static readonly MODULES = {
     LIST: `${this.BASE}/modules`,
+    CREATE: `${this.BASE}/modules/create`,
+    GET: (id: string) => `${this.BASE}/modules/${id}`,
+    UPDATE: (id: string) => `${this.BASE}/modules/${id}`,
+    ACTIVATE: (id: string) => `${this.BASE}/modules/${id}/activate`,
+    DEACTIVATE: (id: string) => `${this.BASE}/modules/${id}/deactivate`,
   } as const;
 }
 
