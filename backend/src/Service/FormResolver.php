@@ -61,8 +61,11 @@ class FormResolver
 
     private function extractFormData(Request $request): ?array
     {
-        if ($data = $request->request->all()) {
-            return array_merge($data, $request->files->all());
+        if (!empty($request->request->all()) || !empty($request->files->all())) {
+            return array_merge(
+                $request->request->all(),
+                $request->files->all(),
+            );
         }
 
         $content = $request->getContent();

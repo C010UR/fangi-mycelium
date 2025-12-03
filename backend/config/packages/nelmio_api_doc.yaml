@@ -94,6 +94,7 @@ nelmio_api_doc:
               description: "User roles."
               items:
                 $ref: "#/components/schemas/UserRole"
+              minItems: 1
             is_active:
               type: boolean
               description: "Whether user is active."
@@ -135,6 +136,7 @@ nelmio_api_doc:
             - username
             - image_url
             - roles
+            - servers
             - is_active
             - is_banned
             - is_activated
@@ -162,6 +164,13 @@ nelmio_api_doc:
               description: "User roles."
               items:
                 $ref: "#/components/schemas/UserRole"
+              minItems: 1
+            servers:
+              type: array
+              description: "List of servers."
+              items:
+                $ref: "#/components/schemas/ServerShort"
+              minItems: 1
             is_active:
               type: boolean
               description: "Whether user is active."
@@ -252,6 +261,64 @@ nelmio_api_doc:
               example: "Olivia Rhye (example@example.com)"
             created_by_entity:
               $ref: "#/components/schemas/UserShort"
+            created_at:
+              type: string
+              format: date-time
+              description: "Date of creation."
+              example: "2017-07-21T17:32:28Z"
+            updated_at:
+              type: string
+              format: date-time
+              description: "Date of the last update."
+              example: "2017-07-21T17:32:28Z"
+        ServerShort:
+          type: object
+          required:
+            - id
+            - name
+            - image_url
+            - allowed_urls
+            - url
+            - is_active
+            - is_banned
+            - created_by
+            - created_at
+            - updated_at
+          properties:
+            id:
+              $ref: "#/components/schemas/DatabaseID"
+            name:
+              type: string
+              description: "Server name."
+              example: "Mycelium"
+            image_url:
+              type: string
+              nullable: true
+              description: "Server image URL."
+              example: "https://example.com/image.jpg"
+            allowed_urls:
+              type: array
+              description: "List of allowed URLs."
+              items:
+                type: string
+                example: "https://example.com"
+            url:
+              type: string
+              description: "First URL."
+              example: "https://example.com"
+            is_active:
+              type: boolean
+              description: "Whether server is active."
+              example: true
+            is_banned:
+              type: boolean
+              description: "Whether server is banned."
+              example: false
+            created_by:
+              type: string
+              nullable: true
+              description: "Who created the server (full name + email)."
+              example: "Olivia Rhye (example@example.com)"
             created_at:
               type: string
               format: date-time
@@ -468,6 +535,92 @@ nelmio_api_doc:
                 format: uri
                 example: "https://example.com"
               nullable: true
+        UserCreateForm:
+          type: object
+          required:
+            - email
+            - username
+            - image
+            - roles
+            - servers
+          properties:
+            email:
+              type: string
+              format: email
+              maxLength: 180
+              description: "User email."
+              example: "user@example.com"
+            username:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Username."
+              example: "johndoe"
+            image:
+              type: string
+              format: binary
+              description: "User image file."
+              nullable: true
+            roles:
+              type: array
+              description: "User roles."
+              items:
+                $ref: "#/components/schemas/UserRole"
+              minItems: 1
+            servers:
+              type: array
+              description: "List of server IDs."
+              items:
+                $ref: "#/components/schemas/DatabaseID"
+              minItems: 1
+        UserUpdateForm:
+          type: object
+          required:
+            - username
+            - image
+            - roles
+            - servers
+          properties:
+            username:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Username."
+              example: "johndoe"
+            image:
+              type: string
+              format: binary
+              description: "User image file."
+              nullable: true
+            roles:
+              type: array
+              description: "User roles."
+              items:
+                $ref: "#/components/schemas/UserRole"
+              minItems: 1
+            servers:
+              type: array
+              description: "List of server IDs."
+              items:
+                $ref: "#/components/schemas/DatabaseID"
+              minItems: 1
+        ProfileUpdateForm:
+          type: object
+          required:
+            - username
+            - image
+          properties:
+            username:
+              type: string
+              minLength: 3
+              maxLength: 255
+              description: "Username."
+              example: "johndoe"
+            image:
+              type: string
+              format: binary
+              description: "User image file."
+              nullable: true
       securitySchemes:
         token_auth:
           type: http
@@ -490,6 +643,8 @@ nelmio_api_doc:
         description: Server management endpoints.
       - name: modules
         description: Module management endpoints.
+      - name: users
+        description: User management endpoints.
   areas: # to filter documented areas
     path_patterns:
       - ^/api(?!/doc$) # Accepts routes under /api except /api/doc

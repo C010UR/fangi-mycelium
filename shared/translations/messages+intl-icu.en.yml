@@ -24,6 +24,7 @@ entity:
   user:
     activated: "User activated successfully."
     deactivated: "User deactivated successfully."
+    already_activated: "User is already activated."
     resend_activation_email: "A new activation email was sent successfully."
   server:
     activated: "Server activated successfully."
@@ -76,6 +77,14 @@ form:
   description:
     invalid: "Description is not valid."
     too_long: "Description must contain at most {limit} characters."
+  roles:
+    invalid: "Roles are not valid."
+    not_unique: "Roles must be unique."
+  servers:
+    invalid: "Servers are not valid."
+    not_unique: "Servers must be unique."
+    at_least_one: "At least one server is required."
+
 
 # Framework's internal messages
 "Credentials invalid.": "Credentials invalid."

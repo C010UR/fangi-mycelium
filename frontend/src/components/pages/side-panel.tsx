@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { LogOut, ChevronsUpDown, Building2, Users, Settings, Puzzle } from 'lucide-react';
+import { LogOut, ChevronsUpDown, Building2, Users, Puzzle, User } from 'lucide-react';
 
 import { useAuth } from '@/lib/auth/context';
 import type { UserRole } from '@/types';
@@ -30,7 +30,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 };
 
 interface SidePanelProps {
-  activeItem?: 'servers' | 'modules' | 'users' | 'settings';
+  activeItem?: 'servers' | 'modules' | 'users' | 'settings' | 'profile';
 }
 
 function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
@@ -64,9 +64,11 @@ function SidePanel({ activeItem = 'servers' }: SidePanelProps) {
           </SidebarMenuItem>
           {isAdmin && (
             <SidebarMenuItem>
-              <SidebarMenuButton isActive={activeItem === 'users'} tooltip="Users">
-                <Users />
-                <span>Users</span>
+              <SidebarMenuButton asChild isActive={activeItem === 'users'} tooltip="Users">
+                <Link to="/users">
+                  <Users />
+                  <span>Users</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
@@ -130,9 +132,16 @@ function SidebarUserProfile() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={logout}>
-          <LogOut />
-          Log out
+        <DropdownMenuItem asChild>
+          <Link to="/profile" className="flex items-center gap-2 cursor-pointer w-full">
+            <User className="h-4 w-4" />
+            <span>Profile</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" onClick={logout} className="cursor-pointer">
+          <LogOut className="h-4 w-4" />
+          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

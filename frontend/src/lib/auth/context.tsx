@@ -24,7 +24,7 @@ interface LoginCredentials {
   password: string;
 }
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   isMfaPending: boolean;
   isLoading: boolean;
@@ -34,6 +34,7 @@ interface AuthState {
   verifyMfa: (data: MfaVerifyRequest) => Promise<AuthResponse>;
   fetchMfaAvailable: () => Promise<MfaAvailableResponse>;
   sendMfaRequest: (method: MFAType) => Promise<MfaSendRequestResponse>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -192,6 +193,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const userData: User = await fangiFetch({
+        route: ApiRoutes.AUTH.PROFILE,
+        useCredentials: true,
+      });
+      setUser(userData);
+    } catch {
+      // If refresh fails, we might want to logout or just ignore if it's transient
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -204,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verifyMfa,
         fetchMfaAvailable,
         sendMfaRequest,
+        refreshUser,
       }}
     >
       {children}

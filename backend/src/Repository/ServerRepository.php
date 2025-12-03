@@ -28,7 +28,28 @@ class ServerRepository extends ServiceEntityRepository
         parent::__construct($registry, Server::class);
     }
 
-    public function findListByRequest(Request $request, ?User $user = null): LqmResult
+    public function findListActiveByRequest(Request $request, User $user): LqmResult
+    {
+        $processor = $this->lqmFactory->create($request, Server::class, $user);
+
+        $query = $this->createQueryBuilder('server')
+            ->leftJoin('server.users', 'user')
+            ->andWhere('user = :user')
+            ->setParameter('user', $user)
+            ->andWhere('server.isActive = true')
+            ->andWhere('server.isBanned = false');
+
+        $result = $processor->processQuery($query, new QueryParamAliasMap(
+            'server',
+            [
+                'server' => 'server',
+            ],
+        ));
+
+        return $result;
+    }
+
+    public function findListByRequest(Request $request, User $user): LqmResult
     {
         $processor = $this->lqmFactory->create($request, Server::class, $user);
 

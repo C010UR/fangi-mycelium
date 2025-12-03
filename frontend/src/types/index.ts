@@ -107,6 +107,7 @@ export interface User {
   username: string;
   image_url: string | null;
   roles: UserRole[];
+  servers: ServerShort[];
   is_active: boolean;
   is_banned: boolean;
   is_activated: boolean;
@@ -115,6 +116,25 @@ export interface User {
   created_at: string;
   updated_at: string;
   last_login_at: string | null;
+}
+
+export interface ProfileUpdateForm {
+  username: string;
+  image: File | null;
+}
+
+export interface ServerShort {
+  id: number;
+  name: string;
+  image_url: string | null;
+  urls: string[];
+  url: string;
+  client_id: string;
+  is_active: boolean;
+  is_banned: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Server {

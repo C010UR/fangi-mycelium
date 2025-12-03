@@ -176,7 +176,7 @@ export default function ServersPage() {
         },
         {
           accessorKey: 'is_active',
-          header: 'Active',
+          header: ({ column }) => <DataTableColumnHeader column={column} title="Active" />,
           size: 100,
           cell: ({ row }) => (
             <Badge variant={row.original.is_active ? 'default' : 'secondary'}>

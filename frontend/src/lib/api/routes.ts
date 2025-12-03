@@ -9,6 +9,7 @@ class ApiRoutes {
     LOGIN: `${this.BASE}/login`,
     LOGOUT: `${this.BASE}/logout`,
     PROFILE: `${this.BASE}/profile`,
+    UPDATE_PROFILE: `${this.BASE}/profile`,
   } as const;
 
   static readonly MFA = {
@@ -29,6 +30,7 @@ class ApiRoutes {
 
   static readonly SERVER = {
     LIST: `${this.BASE}/servers`,
+    LIST_ACTIVE: `${this.BASE}/servers/active`,
     CREATE: `${this.BASE}/servers/create`,
     GET: (id: string) => `${this.BASE}/servers/${id}`,
     UPDATE: (id: string) => `${this.BASE}/servers/${id}`,
@@ -43,6 +45,16 @@ class ApiRoutes {
     ADD: (serverId: string) => `${this.BASE}/servers/${serverId}/modules/add`,
     REMOVE: (serverId: string, moduleId: string) =>
       `${this.BASE}/servers/${serverId}/modules/${moduleId}/remove`,
+  } as const;
+
+  static readonly USERS = {
+    LIST: `${this.BASE}/users`,
+    CREATE: `${this.BASE}/users/create`,
+    GET: (id: string) => `${this.BASE}/users/${id}`,
+    UPDATE: (id: string) => `${this.BASE}/users/${id}`,
+    ACTIVATE: (id: string) => `${this.BASE}/users/${id}/activate`,
+    DEACTIVATE: (id: string) => `${this.BASE}/users/${id}/deactivate`,
+    RESEND_ACTIVATION_EMAIL: (id: string) => `${this.BASE}/users/${id}/resend-activation-email`,
   } as const;
 
   static readonly MODULES = {

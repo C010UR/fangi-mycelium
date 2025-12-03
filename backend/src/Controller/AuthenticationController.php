@@ -6,12 +6,16 @@ namespace App\Controller;
 
 use App\Controller\Abstract\ExtendedAbstractController;
 use App\DataFixtures\Consts\FixtureConsts;
+use App\Entity\User;
 use App\Enum\UserRole;
+use App\Form\ProfileUpdateType;
+use App\ListQueryManagement\Attribute\OpenApi as LqmA;
 use App\OpenApi\Attribute as OAC;
 use Doctrine\ORM\EntityManagerInterface;
 use LogicException;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1', name: 'api_v1_auth_')]
@@ -152,7 +156,7 @@ final class AuthenticationController extends ExtendedAbstractController
             'auth',
         ],
         responses: [
-            new OAC\JsonResponse(200, 'User profile.', schema: '#/components/schemas/User'),
+            new OAC\JsonResponse(200, 'User profile.', schema: new LqmA\Model(User::class)),
             new OAC\UnauthorizedResponse(),
             new OAC\AccessDeniedResponse(UserRole::USER),
             new OAC\InternalServerErrorResponse(),
@@ -161,5 +165,40 @@ final class AuthenticationController extends ExtendedAbstractController
     public function profile(): JsonResponse
     {
         return $this->jsonl($this->getUser(), context: ['groups' => ['extended']]);
+    }
+
+    #[Route('/profile', name: 'profile_update', methods: ['POST'])]
+    #[OA\Post(
+        operationId: 'v1ProfileUpdate',
+        summary: 'Update User Profile',
+        tags: [
+            'auth',
+        ],
+        requestBody: new OAC\JsonBody(
+            description: 'User Form.',
+            schema: new OAC\Model(ProfileUpdateType::class),
+        ),
+        responses: [
+            new OAC\JsonResponse(200, 'User', schema: new LqmA\Model(User::class)),
+            new OAC\BadRequestResponse(),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::USER),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function profileUpdate(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->submitForm(
+            $request,
+            ProfileUpdateType::class,
+            $this->getUser(),
+            ['method' => 'PATCH'],
+        );
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->jsonl($user);
     }
 }

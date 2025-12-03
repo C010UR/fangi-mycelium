@@ -11,9 +11,12 @@ import ForgotPasswordPage from './pages/auth/forgot-password';
 import ResetPasswordPage from './pages/auth/forgot-password/reset';
 import RegisterPage from './pages/auth/register';
 import AccountRegistrationPage from './pages/auth/register/reset';
+import AccountActivatePage from './pages/auth/account-activate';
 import ServersPage from './pages/servers';
 import ServerDetailPage from './pages/servers/detail';
 import ModulesPage from './pages/modules';
+import UsersPage from './pages/users';
+import ProfilePage from './pages/profile';
 import NotFoundPage from './pages/not-found';
 
 interface AuthContext {
@@ -101,6 +104,13 @@ const accountRegistrationRoute = createRoute({
   component: AccountRegistrationPage,
 });
 
+const accountActivateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/account-activation/$token',
+  beforeLoad: beforeLoadUnauthenticated,
+  component: AccountActivatePage,
+});
+
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
@@ -130,6 +140,20 @@ const modulesRoute = createRoute({
   component: ModulesPage,
 });
 
+const usersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/users',
+  beforeLoad: beforeLoadAuthenticated,
+  component: UsersPage,
+});
+
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  beforeLoad: beforeLoadAuthenticated,
+  component: ProfilePage,
+});
+
 const notFoundRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '*',
@@ -143,10 +167,13 @@ const routeTree = rootRoute.addChildren([
   resetPasswordRoute,
   registerRoute,
   accountRegistrationRoute,
+  accountActivateRoute,
   dashboardRoute,
   serversRoute,
   serverDetailRoute,
   modulesRoute,
+  usersRoute,
+  profileRoute,
   notFoundRoute,
 ]);
 

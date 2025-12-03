@@ -6,10 +6,13 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\ListQueryManagement\LqmFactory;
+use App\ListQueryManagement\LqmResult;
+use App\ListQueryManagement\Model\QueryParamAliasMap;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use InvalidArgumentException;
 use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -101,5 +104,26 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('username', $email)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function findListByRequest(Request $request, User $user): LqmResult
+    {
+        $processor = $this->lqmFactory->create($request, User::class, $user);
+
+        $query = $this->createQueryBuilder('user')
+            ->addSelect('server')
+            ->distinct()
+            ->leftJoin('user.servers', 'server')
+            ->andWhere('user != :current_user')
+            ->setParameter('current_user', $user)
+            ->andWhere('server IN (:servers)')
+            ->setParameter('servers', $user->getServers());
+
+        $result = $processor->processQuery($query, new QueryParamAliasMap('user', [
+            'user' => 'user',
+            'server' => 'server',
+        ]));
+
+        return $result;
     }
 }

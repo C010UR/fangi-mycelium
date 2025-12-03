@@ -42,6 +42,9 @@ use Symfony\Component\Serializer\Attribute as Serializer;
 #[LqmA\Search([
     new LqmA\SearchParam('email', '{user}.email'),
     new LqmA\SearchParam('username', '{user}.username'),
+    new LqmA\SearchParam('server_name', '{server}.name'),
+    new LqmA\SearchParam('server_urls', '{server}.urls', type: LqmA\SearchParam::TYPE_ARRAY),
+    new LqmA\SearchParam('server_client_id', '{server}.clientId', type: LqmA\SearchParam::TYPE_UUID),
 ])]
 #[LqmA\Pagination]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTwoFactorInterface, DepthAwareNormalizableInterface
@@ -405,7 +408,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, EmailTw
     /**
      * @return Collection<int, Server>
      */
-    #[Serializer\Ignore]
+    #[Serializer\Groups(['long'])]
+    #[Serializer\SerializedName('servers')]
     public function getServers(): Collection
     {
         return $this->servers;

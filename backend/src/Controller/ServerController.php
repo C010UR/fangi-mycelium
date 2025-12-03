@@ -57,6 +57,29 @@ final class ServerController extends ExtendedAbstractController
         return $this->jsonl($this->serverRepository->findListByRequest($request, $this->getUser()));
     }
 
+    #[Route('/active', name: 'list_active', methods: ['GET'])]
+    #[IsGranted(UserRole::USER)]
+    #[OA\Get(
+        operationId: 'v1ServerListActive',
+        summary: 'Fetch Active Server List',
+        tags: [
+            'servers',
+        ],
+        parameters: [
+            new LqmA\ListParameters(Server::class),
+        ],
+        responses: [
+            new OAC\JsonResponse(200, 'Active Server List', schema: new LqmA\ListResponse(Server::class)),
+            new OAC\UnauthorizedResponse(),
+            new OAC\AccessDeniedResponse(UserRole::USER),
+            new OAC\InternalServerErrorResponse(),
+        ],
+    )]
+    public function active(Request $request): JsonResponse
+    {
+        return $this->jsonl($this->serverRepository->findListActiveByRequest($request, $this->getUser()));
+    }
+
     #[Route('/{id}', name: 'get', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[IsGranted(UserRole::USER)]
     #[IsGranted('view_server', subject: 'server')]
